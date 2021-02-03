@@ -3,94 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <title>Cinema project Greeting page</title>
-<!--    <meta name="viewport" content="width=device-width, initial-scale=2">-->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script>
-        function redirect() {
-            document.location.href = location.origin + '/cinema/hall.do'
+        function clearForm() {
+            document.getElementById("email").value = "";
+            document.getElementById("password").value = "";
+            document.getElementById("newName").value = "";
+            document.getElementById("newEmail").value = "";
+            document.getElementById("newPWD").value = "";
         }
 
-        //TODO !!! fix URL HERE
+        function validateName(name) {
+            if (name.length > 4) {
+                return true
+            } else {
+                $('#hint').text("Имя должено быть длиннее 5 символов.")
+                clearForm()
+                return false
+            }
+        }
+
+        function validateEmail(email) {
+            const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (re.test(String(email).toLowerCase())) {
+                return true
+            } else {
+                $('#hint').text("Некорректный email.")
+                clearForm()
+                return false
+            }
+        }
+
+        function passwordMatching(pwd, pwd2) {
+            if (pwd === pwd2) {
+                return true
+            } else {
+                $('#hint').text("Пароли должены совпадать")
+                clearForm()
+                return false
+            }
+        }
+
+        function validatePWD(password) {
+            if (password.length > 6) {
+                return true
+            } else {
+                $('#hint').text("Пароль должен быть длиннее 6 символов.")
+                clearForm()
+                return false
+            }
+        }
+
+        function redirect() {
+            document.location.href = location.origin + '/job4j_cinema/index.jsp'
+        }
 
         function login() {
             const email = $('#email').val()
             const password = $('#password').val()
-            $.post({
-                url: location.origin + '/cinema/auth',
-                data: {
-                    "action" : 'login',
-                    "email": email,
-                    "password": password
-                }
-            }).done(function () {
-                redirect()
-            }).fail(function () {
-                $('#hint').text("Неверный логин или пароль")
-            });
+            if (validateEmail(email) && validatePWD(password)) {
+                $.post({
+                    url: location.origin + '/job4j_cinema/auth',
+                    data: {
+                        "action": 'login',
+                        "email": email,
+                        "password": password
+                    },
+                    data_type: "json"
+                }).done(function () {
+                    redirect()
+                }).fail(function () {
+                    $('#hint').text("Неверный логин или пароль")
+                });
+            }
         }
 
         function reg() {
-            const newName = $('#validationName').val()
-            const newEmail = $('#validationEmail').val()
-            const newPassword = $('#validationPWD').val()
-            $.post({
-                url: location.origin + '/cinema/auth',
-                data: {
-                    "action" : 'reg',
-                    "name" : newName,
-                    "email": newEmail,
-                    "password": newPassword
-                }
-            }).done(function () {
-                $('#hint').text("Пользователь успешно зарегистрирован.")
-                $('#validationName').text('')
-                $('#validationEmail').text('')
-                $('#validationPWD').text('')
-            }).fail(function () {
-                $('#hint').text("Ошибка регистрации")
-            });
+            const newName = $('#newName').val()
+            const newEmail = $('#newEmail').val()
+            const newPassword = $('#newPWD').val()
+            const passwordConfirm = $('#newPWDConfirm').val()
+            if (validateName(newName) && validateEmail(newEmail) && validatePWD(newPassword) && passwordMatching(newPassword, passwordConfirm)) {
+                $.post({
+                    url: location.origin + '/job4j_cinema/auth',
+                    data: {
+                        "action": 'reg',
+                        "name": newName,
+                        "email": newEmail,
+                        "password": newPassword
+                    }
+                }).done(function () {
+                    clearForm()
+                    $('#hint').text("Пользователь успешно зарегистрирован: Name " + newName + ", Email:" + newEmail)
+                }).fail(function () {
+                    $('#hint').text("Ошибка регистрации")
+                });
+            }
         }
     </script>
 </head>
 <body>
 
-
+<nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+    <ul class="nav navbar-nav">
+        <li>
+            <img src="img/brand.png" width="204" height="131" alt="">
+            <a class="navbar-brand" href="/job4j_cinema/">Cinema Project</a>
+        </li>
+        <li class="card-body" id="card_hint">
+            <label for="card_hint" id="hint"></label>
+        </li>
+    </ul>
+</nav>
 
 <div class="container">
-    <div class="row">
-        <nav class="navbar navbar-light bg-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <img src="/img/brand.png" width="204" height="131" class="d-inline-block align-top" alt="">
-                    Cinema project
-                </a>
-                <div class="card">
-                    <div class="card-body" id="card_hint">
-                        <label for="card_hint" id="hint"></label>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </div>
-
     <div class="row">
         <div class="col-lg">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Login</h5>
-                    <p class="card-text">Input your credentials to login.</p>
-                    <!--                </div>-->
-                    <!--                <div class="card-body">-->
                     <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="email" id="email" aria-label="Email"
-                               aria-describedby="basic-addon1">
+                        <input type="email" class="form-control" placeholder="Email" id="email" required>
                     </div>
                     <div class="mb-3">
-                        <input type="password" class="form-control" placeholder="password" id="password"
-                               aria-label="PWD"
-                               aria-describedby="basic-addon2">
+                        <input type="password" class="form-control" placeholder="Пароль" id="password" required>
                     </div>
                     <button type="submit" class="btn btn-primary" onclick="login()">Войти</button>
                 </div>
@@ -98,33 +137,23 @@
         </div>
         <div class="col-lg">
             <div class="card">
-                <form class="row g-3 needs-validation" novalidate>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" id="validationName" placeholder="Имя пользователя"
+                <div class="card-body">
+                    <h5 class="card-title">Register new account</h5>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" placeholder="Имя пользователя" id="newName" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" class="form-control" placeholder="Email" id="newEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" placeholder="Пароль" id="newPWD" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" placeholder="Подтвердите пароль" id="newPWDConfirm"
                                required>
-                        <div class="invalid-feedback">
-                            Введите имя пользователя.
-                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <input type="email" name="validationEmail" placeholder="Email"
-                               class="email white col-7 col-md-4 col-lg-7 ml-3 form-control" id="validationEmail"
-                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
-                        <div class="invalid-feedback">
-                            Введите email.
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="password" class="form-control" id="validationPWD" placeholder="Пароль"
-                               required>
-                        <div class="invalid-feedback">
-                            Введите пароль.
-                        </div>
-                    </div>
-                    <div class="col-5">
-                        <button type="submit" class="btn btn-primary" onclick="reg()">Зарегистрировать</button>
-                    </div>
-                </form>
+                    <button type="submit" class="btn btn-primary" onclick="reg()">Зарегистрировать</button>
+                </div>
             </div>
         </div>
     </div>

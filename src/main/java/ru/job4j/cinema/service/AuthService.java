@@ -22,7 +22,7 @@ public class AuthService {
         return hashFunction.hashString(password + SALT, charset).toString();
     }
 
-    public static boolean checkCredentials(String email, String password, HttpServletRequest req) {
+    public static boolean checkAndSetCredentials(String email, String password, HttpServletRequest req) {
         User user = store.findUserByEmail(email);
         boolean result = false;
         if (user != null) {

@@ -16,7 +16,7 @@ public class AuthServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getSession().invalidate();
-        resp.sendRedirect("/");
+        resp.sendRedirect("/job4j_cinema/");
     }
 
     @Override
@@ -25,7 +25,7 @@ public class AuthServlet extends HttpServlet {
         if ("login".equals(action)) {
             String email = req.getParameter("email");
             String password = req.getParameter("password");
-            if (!AuthService.checkCredentials(email, password, req)) {
+            if (!AuthService.checkAndSetCredentials(email, password, req)) {
                 String msg = "wrong credentials: Email: " + email + ", Password: " + password;
                 log.error(msg);
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -40,6 +40,8 @@ public class AuthServlet extends HttpServlet {
                 String msg = "can't create a new account with these credentials: Name:" + name + ", Email: " + email + ", Password: " + password;
                 log.error(msg);
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_OK);
             }
         }
     }
