@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class RowDto {
     private int placeNo;
+    private boolean bought;
     private boolean busy;
     private boolean selected;
 }

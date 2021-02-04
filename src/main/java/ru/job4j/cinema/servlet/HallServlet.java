@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -25,7 +26,6 @@ public class HallServlet extends HttpServlet {
         resp.setContentType("json");
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8));
         writer.write(string);
-        System.out.println(string);
         writer.flush();
     }
 
@@ -33,9 +33,13 @@ public class HallServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         boolean res = false;
         String action = req.getParameter("action");
-        User user = (User) req.getSession().getAttribute("user");
+        HttpSession session = req.getSession();
+        User user = (User) session.getAttribute("user");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("json");
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8));
+
         if ("select".equals(action)) {
-            System.out.println("select");
             String[] params = req.getParameter("id").split("\\.");
             int row = Integer.parseInt(params[0]);
             int col = Integer.parseInt(params[1]);
@@ -44,9 +48,7 @@ public class HallServlet extends HttpServlet {
             } else {
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
-        }
-        if ("unselect".equals(action)) {
-            System.out.println("unselect");
+        } else if ("unselect".equals(action)) {
             String[] params = req.getParameter("id").split("\\.");
             int row = Integer.parseInt(params[0]);
             int col = Integer.parseInt(params[1]);
@@ -55,15 +57,20 @@ public class HallServlet extends HttpServlet {
             } else {
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
-
+        } else if ("confirmOrder".equals(action)) {
+            List<int[]> list = PsqlStore.instOf().makeOrder(1, user.getId());
+            writer.write(Mapper.toJson(list));
+            writer.flush();
+        } else if ("buy".equals(action)) {
+            if (PsqlStore.instOf().doBuy(1, user.getId())) {
+                res = true;
+            } else {
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            }
         }
         if (res) {
-            resp.setCharacterEncoding("UTF-8");
-            resp.setContentType("json");
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8));
             writer.write(Mapper.toJson("OK"));
             writer.flush();
         }
     }
-
 }

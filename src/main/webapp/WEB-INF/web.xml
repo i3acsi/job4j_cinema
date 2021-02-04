@@ -1,46 +1,46 @@
 <!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
          version="2.5"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
-  <display-name>Job4j Cinema Project</display-name>
-  <filter>
-    <filter-name>AuthFilter</filter-name>
-    <filter-class>ru.job4j.cinema.filter.AuthFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>AuthFilter</filter-name>
-    <url-pattern>*.do</url-pattern>
-  </filter-mapping>
+    <display-name>Job4j Cinema Project</display-name>
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>ru.job4j.cinema.filter.AuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>*.do</url-pattern>
+    </filter-mapping>
 
-  <servlet-mapping>
-    <servlet-name>AuthServlet</servlet-name>
-    <url-pattern>/auth</url-pattern>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/auth</url-pattern>
 
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>AuthServlet</servlet-name>
-    <servlet-class>ru.job4j.cinema.servlet.AuthServlet</servlet-class>
-  </servlet>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>AuthServlet</servlet-name>
+        <servlet-class>ru.job4j.cinema.servlet.AuthServlet</servlet-class>
+    </servlet>
 
-  <servlet-mapping>
-    <servlet-name>HallServlet</servlet-name>
-    <url-pattern>/hall.do</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>HallServlet</servlet-name>
-    <servlet-class>ru.job4j.cinema.servlet.HallServlet</servlet-class>
-  </servlet>
+    <servlet-mapping>
+        <servlet-name>HallServlet</servlet-name>
+        <url-pattern>/hall.do</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>HallServlet</servlet-name>
+        <servlet-class>ru.job4j.cinema.servlet.HallServlet</servlet-class>
+    </servlet>
 
-  <session-config>
-    <session-timeout>20</session-timeout>
-  </session-config>
+    <session-config>
+        <session-timeout>20</session-timeout>
+    </session-config>
 
-  <welcome-file-list>
-    <welcome-file>Greeting.html</welcome-file>
-  </welcome-file-list>
+    <welcome-file-list>
+        <welcome-file>Greeting.html</welcome-file>
+    </welcome-file-list>
 </web-app>

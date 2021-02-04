@@ -5,6 +5,7 @@ import ru.job4j.cinema.model.Place;
 import ru.job4j.cinema.model.User;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface Store {
 
@@ -23,4 +24,8 @@ public interface Store {
     Collection<PlacesDto> findAllPlacesDtoInHall(int hall, long userId);
 
     boolean processPlace(int hall, int row, int col, boolean doSelect, long userId);
+
+    boolean doBuy(int hall, long userId);
+
+    List<int[]> makeOrder(int hall, long userId);
 }

@@ -11,10 +11,7 @@ import ru.job4j.cinema.model.User;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +21,7 @@ public class PsqlStore implements Store {
     private final Map<Integer, //hall
             Map<Integer, //row
                     Map<Integer, //col
-                            Object[]>>> selectionMap = new ConcurrentHashMap<>(); // selected , bought, account_id
+                            Object[]>>> selectionMap = new ConcurrentHashMap<>(); // selected , bought, account_id , price
 
     private PsqlStore() {
         Properties cfg = new Properties();
@@ -274,8 +271,16 @@ public class PsqlStore implements Store {
                 places.compute(row, (k, v) -> {
                     if (v == null)
                         v = new ArrayList<>();
-                    boolean selected = (boolean) place[0] && (long) place[2] == userId;
-                    v.add(new RowDto(col, (boolean) place[1], selected));
+                    boolean bought = (boolean) place[1];
+                    boolean busy = false, selected = false;
+                    if ((boolean) place[0]) {
+                        if ((long) place[2] == userId) {
+                            selected = true;
+                        } else {
+                            busy = true;
+                        }
+                    }
+                    v.add(new RowDto(col, bought, busy, selected));
                     return v;
                 });
             });
@@ -316,6 +321,57 @@ public class PsqlStore implements Store {
         });
 
         return result[0];
+    }
+
+    @Override
+    public boolean doBuy(int hall, long userId) {
+        boolean result = true;
+        List<int[]> places = makeOrder(hall, userId);
+
+        try (Connection cn = pool.getConnection()) {
+            cn.setAutoCommit(false);
+            Savepoint savepoint = cn.setSavepoint("savePoint");
+            try {
+                for (int[] array : places) {
+                    PreparedStatement updatePlaces = cn.prepareStatement("UPDATE places SET account_id = ? WHERE hall = ? AND row = ? AND col = ? AND account_id ISNULL");
+                    updatePlaces.setLong(1, userId);
+                    updatePlaces.setInt(2, hall);
+                    updatePlaces.setInt(3, array[0]);
+                    updatePlaces.setInt(4, array[1]);
+                    int updated = updatePlaces.executeUpdate();
+                    if (updated != 1)
+                        throw new SQLException("can't to buy place. HALL: " + hall + ", ROW: " + array[0] + ", COL: " + array[1] + " USER_ID:" + userId);
+                }
+                cn.commit();
+            } catch (SQLException sqlE) {
+                log.error(sqlE.getMessage(), sqlE);
+                cn.rollback(savepoint);
+                throw new RuntimeException("connection rollback while update on buy place");
+            }
+        } catch (Exception e) {
+            result = false;
+            log.error(e.getMessage(), e);
+        }
+        updateMap(hall);
+        return result;
+    }
+
+    @Override
+    public List<int[]> makeOrder(int hall, long userId) {
+        List<int[]> places = new ArrayList<>();
+        selectionMap.get(hall)
+                .forEach((row, cols) -> {
+                    cols.forEach((col, place) -> {
+                        boolean selected = (boolean) place[0];
+                        boolean bought = (boolean) place[1];
+                        long accountId = (long) place[2];
+                        int price = (int) place[3];
+                        if ((accountId == userId) && selected && !bought) {
+                            places.add(new int[]{row, col, price});
+                        }
+                    });
+                });
+        return places;
     }
 
     private List<Long> getRoleIds(User user, Connection cn) throws SQLException {
@@ -366,13 +422,14 @@ public class PsqlStore implements Store {
 
     private void updateMap(int hall) {
         try (Connection cn = pool.getConnection();
-             PreparedStatement selectPlacesInHall = cn.prepareStatement("SELECT row, col, account_id FROM places WHERE hall = ?")) {
+             PreparedStatement selectPlacesInHall = cn.prepareStatement("SELECT row, col, account_id, price FROM places WHERE hall = ?")) {
             selectPlacesInHall.setInt(1, hall);
             ResultSet selectedPlaces = selectPlacesInHall.executeQuery();
             while (selectedPlaces.next()) {
                 int row = selectedPlaces.getInt("row");
                 int col = selectedPlaces.getInt("col");
                 Long accountId = selectedPlaces.getLong("account_id");
+                int price = selectedPlaces.getInt("price");
                 selectionMap.compute(hall, (hallNo, hallMap) -> {
                     if (hallMap == null)
                         hallMap = new ConcurrentHashMap<>();
@@ -381,17 +438,18 @@ public class PsqlStore implements Store {
                             rowMap = new ConcurrentHashMap<>();
                         rowMap.compute(col, (colNo, place) -> {
                             if (place == null)
-                                place = new Object[3];
+                                place = new Object[4];
                             if (accountId > 0) {
-                                // если accountId > 0 в БД значит место куплено если меньше, значит оставляем данне в мапе как есть
                                 place[0] = true;
                                 place[1] = true;
                                 place[2] = accountId;
+                                place[3] = price;
                             } else {
-                                if (place[0] == null) { // если не инициализированно
+                                if (place[0] == null) {
                                     place[0] = false;
                                     place[1] = false;
                                     place[2] = 0L;
+                                    place[3] = price;
                                 }
                             }
                             return place;
