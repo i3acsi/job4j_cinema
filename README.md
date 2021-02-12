@@ -1,6 +1,6 @@
 [GIT REPOSITORY](https://github.com/i3acsi/job4j_cinema.git)
 
-[![Build Status](https://travis-ci.org/i3acsi/job4j_cinema.svg?branch=master)](https://travis-ci.org/i3acsi/job4j_cinema)
+[![Build Status](https://travis-ci.org/i3acsi/job4j_cinema.svg?branch=main)](https://travis-ci.org/i3acsi/job4j_cinema)
 [![codecov](https://codecov.io/gh/i3acsi/job4j_cinema/branch/main/graph/badge.svg?token=kVkIRL0oH7)](https://codecov.io/gh/i3acsi/job4j_cinema)
 
 Проект  Сервис - Кинотеатр.
