@@ -1,7 +1,7 @@
 [GIT REPOSITORY](https://github.com/i3acsi/job4j_cinema.git)
 
 [![Build Status](https://travis-ci.org/i3acsi/job4j_cinema.svg?branch=master)](https://travis-ci.org/i3acsi/job4j_cinema)
-[![codecov](https://codecov.io/gh/i3acsi/job4j_dreamjob/branch/master/graph/badge.svg?token=9RQSL2GZ16)](https://codecov.io/gh/i3acsi/job4j_dreamjob)
+[![codecov](https://codecov.io/gh/i3acsi/job4j_cinema/branch/main/graph/badge.svg?token=kVkIRL0oH7)](https://codecov.io/gh/i3acsi/job4j_cinema)
 
 Проект  Сервис - Кинотеатр.
 <br>
@@ -23,7 +23,7 @@
  
  <div>
 <br>
- На станице есть валидация введенных данных:
+ На странице есть валидация введенных данных:
  <br>
  пароли - по длинне и по эквивалентности (при регистрации),
  <br>
@@ -157,8 +157,7 @@
   Используемые технологии:
  1. Apache Tomcat — контейнер сервлетов
  2. Java servlets, MVC
- 3. JSP, JSTL
+ 3. JSP
  4. HTML, CSS, JS, Bootstrap, jquery ajax
- 5. PostgreSQL 
- 6. JUnit, Mockito, PowerMock
- 7. Git, Travis CI, CodeCov
+ 5. PostgreSQL, Lombok 
+ 6. Git, Travis CI, CodeCov
